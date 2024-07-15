@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
 });
 
 type RouteConfigOptions = Omit<RouteOptions, "getParentRoute" | "path"> & {
-	id?: string;
+	type?: "layout" | "route";
 };
 
 type RouteOption = RouteConfigOptions & {
@@ -39,8 +39,8 @@ const recurseRoute = (
 
 	const createdRoute = createRoute({
 		getParentRoute: () => parent as unknown as Route,
-		...("id" in (availableRouteOptions || {})
-			? { id: (availableRouteOptions as any).id }
+		...(availableRouteOptions.type === "layout"
+			? { id: path }
 			: { path: path }),
 		...availableRouteOptions,
 	});

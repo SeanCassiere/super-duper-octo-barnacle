@@ -15,7 +15,7 @@ describe("basic router test for Layout", () => {
 			renderWithRouter({
 				routes: {
 					_layout: {
-						id: "_layout",
+						type: "layout",
 						component: () => <LayoutWrapper />,
 						routes: {
 							"/": {
