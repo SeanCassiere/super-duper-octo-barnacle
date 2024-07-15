@@ -19,7 +19,7 @@ describe("basic router test for Workflows", () => {
 						component: undefined,
 						routes: {
 							$workflowId: {
-								component: () => <Workflows />,
+								component: Workflows,
 							},
 						},
 					},

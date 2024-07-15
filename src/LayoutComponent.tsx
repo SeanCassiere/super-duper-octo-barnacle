@@ -9,6 +9,10 @@ export function LayoutWrapper() {
 	);
 }
 
-export function LayoutComponent() {
-	return <p>I am a layout component</p>;
+export function LayoutIndexComponent() {
+	return <p>I am a layout index component</p>;
+}
+
+export function LayoutAboutComponent() {
+	return <p>I am a layout about component</p>;
 }
