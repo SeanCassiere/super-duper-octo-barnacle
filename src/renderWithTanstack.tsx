@@ -6,7 +6,8 @@ import {
 	createRouter,
 	Outlet,
 	RouterProvider,
-	type ReactNode,
+	type Route,
+	type RouteOptions,
 } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 
@@ -18,8 +19,8 @@ const queryClient = new QueryClient({
 	},
 });
 
-type RouteConfigOptions = {
-	component?: undefined | (() => ReactNode);
+type RouteConfigOptions = Omit<RouteOptions, "getParentRoute" | "path"> & {
+	id?: string;
 };
 
 type RouteOption = RouteConfigOptions & {
@@ -27,30 +28,34 @@ type RouteOption = RouteConfigOptions & {
 };
 
 const recurseRoute = (
-	parent: any,
+	parent: Route,
 	path: string,
 	routeOptions?: RouteConfigOptions,
 	routes?: Record<string, RouteOption>
 ) => {
-	const internalCollection: any[] = [];
+	const internalCollection: Array<Route> = [];
+
+	const availableRouteOptions = routeOptions || {};
 
 	const createdRoute = createRoute({
-		getParentRoute: () => parent,
-		path: path,
-		...routeOptions,
+		getParentRoute: () => parent as unknown as Route,
+		...("id" in (availableRouteOptions || {})
+			? { id: (availableRouteOptions as any).id }
+			: { path: path }),
+		...availableRouteOptions,
 	});
 
 	if (routes) {
-		[...Object.entries(routes)].forEach(
+		Object.entries(routes).forEach(
 			([childPath, { routes: childRoutes, ...childRouteConfigOptions }]) => {
 				const result = recurseRoute(
-					createdRoute,
+					createdRoute as unknown as Route,
 					childPath,
 					childRouteConfigOptions,
 					childRoutes
 				);
 
-				internalCollection.push(result);
+				internalCollection.push(result as unknown as Route);
 			}
 		);
 
@@ -75,12 +80,17 @@ export function renderWithRouter(options: {
 		},
 	});
 
-	const rootRouteChildren: any[] = [];
+	const rootRouteChildren: Array<Route> = [];
 
-	[...Object.entries(options.routes)].forEach(
+	Object.entries(options.routes).forEach(
 		([path, { routes, ...configOptions }]) => {
-			const result = recurseRoute(rootRoute, path, configOptions, routes);
-			rootRouteChildren.push(result);
+			const result = recurseRoute(
+				rootRoute as unknown as Route,
+				path,
+				configOptions,
+				routes
+			);
+			rootRouteChildren.push(result as unknown as Route);
 		}
 	);
 
